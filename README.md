@@ -84,19 +84,22 @@ WARNING:  no tuple identifier for UPDATE in table "public"."table2_without_pk"
 --------------------------------------------------------------------------------------------------------------------
  {"action":"B"}
  {"action":"I","schema":"public","table":"table2_with_pk","columns":[{"name":"a","type":"integer","value":1},{"name":"b","type":"character varying(30)","va
-lue":"Backup and Restore"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:29:34.799976"}]}
+lue":"Backup and Restore"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:49:23.781354"}]}
  {"action":"I","schema":"public","table":"table2_with_pk","columns":[{"name":"a","type":"integer","value":2},{"name":"b","type":"character varying(30)","va
-lue":"Tuning"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:29:34.799976"}]}
+lue":"Tuning"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:49:23.781354"}]}
  {"action":"I","schema":"public","table":"table2_with_pk","columns":[{"name":"a","type":"integer","value":3},{"name":"b","type":"character varying(30)","va
-lue":"Replication"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:29:34.799976"}]}
+lue":"Replica"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:49:23.781354"}]}
+ {"action":"U","schema":"public","table":"table2_with_pk","columns":[{"name":"a","type":"integer","value":3},{"name":"b","type":"character varying(30)","va
+lue":"Replication"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:49:23.781354"}],"identity":[{"name":"a","type":"integer","value
+":3},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:49:23.781354"}]}
  {"action":"D","schema":"public","table":"table2_with_pk","identity":[{"name":"a","type":"integer","value":1},{"name":"c","type":"timestamp without time zo
-ne","value":"2021-09-30 07:29:34.799976"}]}
+ne","value":"2021-09-30 07:49:23.781354"}]}
  {"action":"D","schema":"public","table":"table2_with_pk","identity":[{"name":"a","type":"integer","value":2},{"name":"c","type":"timestamp without time zo
-ne","value":"2021-09-30 07:29:34.799976"}]}
+ne","value":"2021-09-30 07:49:23.781354"}]}
  {"action":"I","schema":"public","table":"table2_without_pk","columns":[{"name":"a","type":"integer","value":1},{"name":"b","type":"numeric(5,2)","value":2
 .34},{"name":"c","type":"text","value":"Tapir"}]}
  {"action":"C"}
-(8 rows)
+(9 rows)
 
 postgres=# SELECT 'stop' FROM pg_drop_replication_slot('test_slot');
  ?column?
