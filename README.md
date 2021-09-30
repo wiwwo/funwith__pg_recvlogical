@@ -1,18 +1,20 @@
-Startup
+# Startup
 ```
 $ docker-compose up -d
 ```
 
-Play with it:
+# Play with it:
+
+## psql
+
 ```
+
 $ docker exec -it funwith__pg_recvlogical_pg_master_1 psql -h funwith__pg_recvlogical_pg_master_1 -Umyuser -dpostgres -p5432
 ```
 
 Copy-paste this in terminal:
 
 ```
-drop table if exists table2_with_pk;
-drop table if exists table2_without_pk;
 CREATE TABLE table2_with_pk (a SERIAL, b VARCHAR(30), c TIMESTAMP NOT NULL, PRIMARY KEY(a, c));
 CREATE TABLE table2_without_pk (a SERIAL, b NUMERIC(5,2), c TEXT);
 
@@ -21,8 +23,7 @@ SELECT 'init' FROM pg_create_logical_replication_slot('test_slot', 'wal2json');
 BEGIN;
 INSERT INTO table2_with_pk (b, c) VALUES('Backup and Restore', now());
 INSERT INTO table2_with_pk (b, c) VALUES('Tuning', now());
-INSERT INTO table2_with_pk (b, c) VALUES('Replica', now());
-UPDATE table2_with_pk SET b = 'Replication' WHERE a=3;
+INSERT INTO table2_with_pk (b, c) VALUES('Replication', now());
 DELETE FROM table2_with_pk WHERE a < 3;
 
 INSERT INTO table2_without_pk (b, c) VALUES(2.34, 'Tapir');
@@ -84,22 +85,19 @@ WARNING:  no tuple identifier for UPDATE in table "public"."table2_without_pk"
 --------------------------------------------------------------------------------------------------------------------
  {"action":"B"}
  {"action":"I","schema":"public","table":"table2_with_pk","columns":[{"name":"a","type":"integer","value":1},{"name":"b","type":"character varying(30)","va
-lue":"Backup and Restore"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:49:23.781354"}]}
+lue":"Backup and Restore"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:29:34.799976"}]}
  {"action":"I","schema":"public","table":"table2_with_pk","columns":[{"name":"a","type":"integer","value":2},{"name":"b","type":"character varying(30)","va
-lue":"Tuning"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:49:23.781354"}]}
+lue":"Tuning"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:29:34.799976"}]}
  {"action":"I","schema":"public","table":"table2_with_pk","columns":[{"name":"a","type":"integer","value":3},{"name":"b","type":"character varying(30)","va
-lue":"Replica"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:49:23.781354"}]}
- {"action":"U","schema":"public","table":"table2_with_pk","columns":[{"name":"a","type":"integer","value":3},{"name":"b","type":"character varying(30)","va
-lue":"Replication"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:49:23.781354"}],"identity":[{"name":"a","type":"integer","value
-":3},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:49:23.781354"}]}
+lue":"Replication"},{"name":"c","type":"timestamp without time zone","value":"2021-09-30 07:29:34.799976"}]}
  {"action":"D","schema":"public","table":"table2_with_pk","identity":[{"name":"a","type":"integer","value":1},{"name":"c","type":"timestamp without time zo
-ne","value":"2021-09-30 07:49:23.781354"}]}
+ne","value":"2021-09-30 07:29:34.799976"}]}
  {"action":"D","schema":"public","table":"table2_with_pk","identity":[{"name":"a","type":"integer","value":2},{"name":"c","type":"timestamp without time zo
-ne","value":"2021-09-30 07:49:23.781354"}]}
+ne","value":"2021-09-30 07:29:34.799976"}]}
  {"action":"I","schema":"public","table":"table2_without_pk","columns":[{"name":"a","type":"integer","value":1},{"name":"b","type":"numeric(5,2)","value":2
 .34},{"name":"c","type":"text","value":"Tapir"}]}
  {"action":"C"}
-(9 rows)
+(8 rows)
 
 postgres=# SELECT 'stop' FROM pg_drop_replication_slot('test_slot');
  ?column?
@@ -108,4 +106,69 @@ postgres=# SELECT 'stop' FROM pg_drop_replication_slot('test_slot');
 (1 row)
 
 postgres=#
+```
+
+## pg_recvlogical
+
+Use another terminal, and execute
+```
+$ docker exec -it funwith__pg_recvlogical_pg_master_1  pg_recvlogical -h funwith__pg_recvlogical_pg_master_1 -Umyuser -dpostgres -p5432   --slot=test2 --create-slot -P wal2json
+$ docker exec -it funwith__pg_recvlogical_pg_master_1  pg_recvlogical -h funwith__pg_recvlogical_pg_master_1 -Umyuser -dpostgres -p5432   --slot=test2 --start -o pretty-print=1 -o add-msg-prefixes=wal2json -f -
+```
+
+Example "screenshot":
+
+```
+$ docker exec -it funwith__pg_recvlogical_pg_master_1  pg_recvlogical -h funwith__pg_recvlogical_pg_master_1 -Umyuser -dpostgres -p5432   --slot=test2 --create-slot -P wal2json
+$ docker exec -it funwith__pg_recvlogical_pg_master_1  pg_recvlogical -h funwith__pg_recvlogical_pg_master_1 -Umyuser -dpostgres -p5432   --slot=test2 --start -o pretty-print=1 -o add-msg-prefixes=wal2json -f -
+WARNING:  table "table2_without_pk" without primary key or replica identity is nothing
+{
+	"change": [
+		{
+			"kind": "insert",
+			"schema": "public",
+			"table": "table2_with_pk",
+			"columnnames": ["a", "b", "c"],
+			"columntypes": ["integer", "character varying(30)", "timestamp without time zone"],
+			"columnvalues": [4, "Backup and Restore", "2021-09-30 08:04:37.23635"]
+		}
+		,{
+			"kind": "insert",
+			"schema": "public",
+			"table": "table2_with_pk",
+			"columnnames": ["a", "b", "c"],
+			"columntypes": ["integer", "character varying(30)", "timestamp without time zone"],
+			"columnvalues": [5, "Tuning", "2021-09-30 08:04:37.23635"]
+		}
+		,{
+			"kind": "insert",
+			"schema": "public",
+			"table": "table2_with_pk",
+			"columnnames": ["a", "b", "c"],
+			"columntypes": ["integer", "character varying(30)", "timestamp without time zone"],
+			"columnvalues": [6, "Replica", "2021-09-30 08:04:37.23635"]
+		}
+		,{
+			"kind": "update",
+			"schema": "public",
+			"table": "table2_with_pk",
+			"columnnames": ["a", "b", "c"],
+			"columntypes": ["integer", "character varying(30)", "timestamp without time zone"],
+			"columnvalues": [3, "Replication", "2021-09-30 08:02:13.802435"],
+			"oldkeys": {
+				"keynames": ["a", "c"],
+				"keytypes": ["integer", "timestamp without time zone"],
+				"keyvalues": [3, "2021-09-30 08:02:13.802435"]
+			}
+		}
+		,{
+			"kind": "insert",
+			"schema": "public",
+			"table": "table2_without_pk",
+			"columnnames": ["a", "b", "c"],
+			"columntypes": ["integer", "numeric(5,2)", "text"],
+			"columnvalues": [2, 2.34, "Tapir"]
+		}
+	]
+}
 ```
