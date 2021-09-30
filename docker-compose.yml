@@ -1,0 +1,14 @@
+version: "3"
+services:
+  pg_master:
+     build: ./master
+     ports:
+         - "5445:5432"
+     environment:
+         - POSTGRES_HOST_AUTH_METHOD=trust
+         - POSTGRES_USER=myuser
+         - POSTGRES_PASSWORD=mypwd
+         - POSTGRES_DB=postgres
+         - PG_REP_USER=rep
+         - PG_REP_PASSWORD=mypwd
+     restart: always
